@@ -1,5 +1,7 @@
 package br.com.wmw.auth.processors;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,13 +12,14 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import io.smallrye.jwt.auth.principal.DefaultJWTParser;
 import io.smallrye.jwt.auth.principal.JWTParser;
+import jakarta.json.JsonString;
 
 public class JwtMiddlawareProcessor implements Processor {
 
-    private final List<String> permission;
+    private final List<String> permissions;
 
     public JwtMiddlawareProcessor(List<String> permission) {
-        this.permission = permission;
+        this.permissions = permission;
     }
 
     @Override
@@ -28,15 +31,41 @@ public class JwtMiddlawareProcessor implements Processor {
         
         JWTParser jwtParser = new DefaultJWTParser();
 
-        // remove parseOnly
         JsonWebToken jsonWebToken = jwtParser.parseOnly(authHeader);
 
-        Map<String, Object> body = new HashMap<>();
-        body.put("permissions", permission);
+        List<String> roles = extractRoles(jsonWebToken.getClaim("roles"));
 
-        body.put("email", jsonWebToken.getClaim("upn"));
-
-        exchange.getIn().setBody(body.toString());
+        if (!hasPermissions(roles)) {
+            throw new Exception("Sem Permissão");
+        }
     }
 
+    private List<String> extractRoles(Object rolesClaim) {
+        if (rolesClaim instanceof List<?>) {
+            List<?> roles = (List<?>) rolesClaim;
+            if (!roles.isEmpty() && roles.get(0) instanceof JsonString) {
+                return roles.stream()
+                            .map(role -> ((JsonString) role).getString())
+                            .toList();
+            }
+            return (List<String>) rolesClaim;
+        }
+
+        return Collections.emptyList();
+    }
+
+    private boolean hasPermissions(List<String> roles) {
+        Boolean hasPermisson = false;
+
+        // Desacoplar
+        Map<String, List<String>> realRoles = new HashMap<>();
+        realRoles.put("USER", Arrays.asList("CREATE_ORDER", "LOGIN"));
+
+        for (String role : roles) {
+            List<String> permissionsOfRole = realRoles.get(role);
+            hasPermisson = permissionsOfRole.containsAll(permissions);
+        }
+        
+        return hasPermisson;
+    }
 }

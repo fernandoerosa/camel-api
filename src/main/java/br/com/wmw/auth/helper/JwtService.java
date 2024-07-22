@@ -1,21 +1,22 @@
 package br.com.wmw.auth.helper;
 
 import java.time.Duration;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.smallrye.jwt.build.Jwt;
 
 public class JwtService {
 
     public static String generateToken(String email) {
-        Set<String> roles = new HashSet<>();
-        roles.add("User");
+        List<String> roles = new ArrayList<>();
+        roles.add("USER");
 
         String token = Jwt.issuer("http://example.com/issuer")
                 .upn(email)
-                .groups(roles)
                 .expiresIn(Duration.ofHours(1))
+                .claim("coreUrl", "http://localhost:8081")
+                .claim("roles", roles)
                 .sign();
 
         return token;
