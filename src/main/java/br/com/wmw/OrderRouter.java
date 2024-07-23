@@ -9,7 +9,7 @@ import br.com.wmw.auth.processors.JwtAuthProcessor;
 import br.com.wmw.auth.processors.JwtMiddlawareProcessor;
 import br.com.wmw.auth.processors.OrderProcessor;
 
-public class ApiIntegration extends RouteBuilder {  
+public class OrderRouter extends RouteBuilder {  
 
     @Override
     public void configure() throws Exception {
@@ -27,12 +27,14 @@ public class ApiIntegration extends RouteBuilder {
                 .to("direct:createOrder");
         
         from("direct:legacy-orders")
-            .unmarshal().json(JsonLibrary.Jackson)
+            .unmarshal().json(JsonLibrary.Jackson)  
+            .log("Legacy Body: ${body}")
             .process(new OrderProcessor())
             .marshal().json(JsonLibrary.Jackson)
+            .log("Legacy Body Parsed: ${body}")
             .to("direct:createOrder");
 
         from("direct:createOrder")
-            .toD("http:${header.core}?bridgeEndpoint=true");
+            .toD("http:${header.coreUrl}?bridgeEndpoint=true");
     }
 }

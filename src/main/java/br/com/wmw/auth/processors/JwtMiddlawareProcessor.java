@@ -18,15 +18,15 @@ public class JwtMiddlawareProcessor implements Processor {
 
     private final List<String> permissions;
 
-    public JwtMiddlawareProcessor(List<String> permission) {
-        this.permissions = permission;
+    public JwtMiddlawareProcessor(List<String> permissions) {
+        this.permissions = permissions;
     }
 
     @Override
     public void process(Exchange exchange) throws Exception {
         String authHeader = exchange.getIn().getHeader("Authorization", String.class);
         if (authHeader == null) {
-            throw new RuntimeException("Token JWT não encontrado!");
+            throw new Exception("Token JWT não encontrado!");
         }
         
         JWTParser jwtParser = new DefaultJWTParser();

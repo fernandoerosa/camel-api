@@ -1,53 +1,68 @@
-# camel-api
+# Camel - K
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+> Modo de operação do Camel nativamente no Kubernetes, atraves de uma CLI/ Linha de comando Kamel.
+> 
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+> O Camel no Kubernetes roda em um projeto Quarkus, cada nova integração criada, gera um service que pode expor as rotas ou não.
+> 
 
-## Running the application in dev mode
+## Estrutura da Arquitetura
 
-You can run your application in dev mode that enables live coding using:
-```shell script
-./mvnw compile quarkus:dev
-```
+### Imagens de Arquitetura
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+- **Imagem 1**: Representa a arquitetura geral.
+- **Imagem 2**: Detalhes dos componentes integrados.
 
-## Packaging and running the application
+## Desenvolvimento com Camel K
 
-The application can be packaged using:
-```shell script
-./mvnw package
-```
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+### Desafios do Camel K
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+- **Importações Manuais**: O desenvolvimento interno com Camel K é mais demorado, pois é necessário fazer os imports manualmente.
+- **Ausência de Autocomplete**: Não há pacotes localmente disponíveis, o que dificulta o uso de autocomplete.
+- **Verbosidade**: O código torna-se mais verboso.
 
-If you want to build an _über-jar_, execute the following command:
-```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
-```
+### Estratégia de Uso
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
+A proposta é utilizar duas instâncias do Camel:
 
-## Creating a native executable
+1. **Camel na API**
+    - **Descrição**: Esta instância substitui a API atual, caso haja necessidade de troca.
+    - **Tecnologia**: Aplicação Quarkus.
+    - **Funcionalidade**: Responsável por redirecionamentos, tratamento de JSON, ajustes de body, e integrações internas com serviços como Elasticsearch, Google, API de pagamento, etc.
+    - **Desenvolvimento**: Interno.
 
-You can create a native executable using: 
-```shell script
-./mvnw package -Dnative
-```
+2. **Camel K no Kubernetes**
+    - **Descrição**: Permite subir integrações através do envio de arquivos em diversas linguagens (Java, Groovy, TypeScript, Kotlin, YAML, etc.).
+    - **Funcionalidade**: Focado em integrações criadas por clientes via blocos do Blocky. Configuramos os componentes que serão liberados e os clientes podem criar suas integrações conforme desejarem.
+    - **Integração**: Este Camel K azul se comunica com as rotas do Camel API (amarelo) interno.
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
-```
+### Detalhes dos Serviços
 
-You can then execute your native executable with: `./target/camel-api-1.0.0-SNAPSHOT-runner`
+- **Services Criados pelo Camel K**: Cada integração criada gera um endpoint e um serviço exclusivo.
 
-If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
+## Implementação Quarkus com Camel
 
-## Related Guides
+### Criação de Projeto
 
-- Camel Log ([guide](https://camel.apache.org/camel-quarkus/latest/reference/extensions/log.html)): Prints data form the routed message (such as body and headers) to the logger
-- Camel Timer ([guide](https://camel.apache.org/camel-quarkus/latest/reference/extensions/timer.html)): Generate messages in specified intervals using java.util.Timer
+- **Novo Projeto Quarkus**: Projeto criado para implementar a API com Camel.
+- **Arquivo de Rotas**: Expondo rotas como REST e convertendo JSON para maps para tratamento em Java.
+
+### Autenticação e Permissão
+
+- **Autenticação JWT**: Implementada como middleware, similar à API desenvolvida em Deno.
+- **Componentes Usados**:
+    - **Shiro**: Componente pronto do Quarkus para autenticação.
+    - **Componente Próprio**: Implementação personalizada para JWT.
+
+### Processors
+
+- **Definição**: Em cada rota, é possível instanciar um processor (existente ou personalizado) que recebe o contexto da requisição para customização.
+- **Exemplo 1**: Processor criado para acessar um serviço de autenticação e criar um token.
+    
+- **Exemplo 2**: Processor comportando-se como middleware para validação e acesso a banco de dados, entre outras funções.
+
+### Headers na Requisição
+
+- **Headers Enviados**:
+    - **CoreUrl**: Recebido pelo Camel para direcionar a rota dinamicamente.
+    - **Flag Legacy**: Determina o caminho que o Camel deve seguir (passando por um processor para transformar o dado ou indo direto para a rota certa).
