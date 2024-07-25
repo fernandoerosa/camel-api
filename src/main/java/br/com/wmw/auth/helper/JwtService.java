@@ -15,7 +15,7 @@ public class JwtService {
         String token = Jwt.issuer("http://example.com/issuer")
                 .upn(email)
                 .expiresIn(Duration.ofHours(1))
-                .claim("coreUrl", "http://localhost:8081")
+                .claim("coreUrl", "localhost:8082")
                 .claim("roles", roles)
                 .sign();
 

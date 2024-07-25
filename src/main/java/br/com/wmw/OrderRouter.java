@@ -5,20 +5,15 @@ import java.util.Arrays;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
 
-import br.com.wmw.auth.processors.JwtAuthProcessor;
 import br.com.wmw.auth.processors.JwtMiddlawareProcessor;
-import br.com.wmw.auth.processors.OrderProcessor;
+import br.com.wmw.transforms.OrderProcessor;;
 
 public class OrderRouter extends RouteBuilder {  
 
     @Override
     public void configure() throws Exception {
 
-        from("rest:post:/token")
-            .unmarshal().json(JsonLibrary.Jackson)
-            .process(new JwtAuthProcessor());
-
-        from("rest:post:/order/create")
+          from("rest:post:/order/create")
             .process(new JwtMiddlawareProcessor(Arrays.asList("CREATE_ORDER")))
             .choice()
             .when(simple("${header.legacy} == 'true'"))

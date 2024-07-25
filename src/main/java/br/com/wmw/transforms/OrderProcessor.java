@@ -1,4 +1,4 @@
-package br.com.wmw.auth.processors;
+package br.com.wmw.transforms;
 
 import java.util.HashMap;
 import java.util.Map;

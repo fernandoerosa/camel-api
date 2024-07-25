@@ -38,6 +38,8 @@ public class JwtMiddlawareProcessor implements Processor {
         if (!hasPermissions(roles)) {
             throw new Exception("Sem Permissão");
         }
+
+        exchange.getIn().setHeader("coreUrl", jsonWebToken.getClaim("coreUrl"));
     }
 
     private List<String> extractRoles(Object rolesClaim) {
@@ -59,7 +61,7 @@ public class JwtMiddlawareProcessor implements Processor {
 
         // Desacoplar
         Map<String, List<String>> realRoles = new HashMap<>();
-        realRoles.put("USER", Arrays.asList("CREATE_ORDER", "LOGIN"));
+        realRoles.put("USER", Arrays.asList("CREATE_ORDER", "LOGIN", "READ_PRODUCT"));
 
         for (String role : roles) {
             List<String> permissionsOfRole = realRoles.get(role);
