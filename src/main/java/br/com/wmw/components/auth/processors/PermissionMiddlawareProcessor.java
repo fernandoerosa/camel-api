@@ -33,6 +33,7 @@ public class PermissionMiddlawareProcessor implements Processor {
 
         JsonWebToken jsonWebToken = jwtParser.parseOnly(authHeader);
 
+        //Capturar roles por usuario
         List<String> roles = extractRoles(jsonWebToken.getClaim("roles"));
 
         if (!hasPermissions(roles)) {
