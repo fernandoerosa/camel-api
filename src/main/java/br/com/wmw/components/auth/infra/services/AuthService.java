@@ -1,28 +1,31 @@
-package br.com.wmw.auth.helper;
+package br.com.wmw.components.auth.infra.services;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.wmw.components.auth.domain.services.IAuthService;
 import io.smallrye.jwt.build.Jwt;
+import jakarta.inject.Singleton;
 
-public class JwtService {
+@Singleton
+public class AuthService implements IAuthService {
 
-    public static String generateToken(String email) {
+    public String generateToken(String email, String coreUrl) {
         List<String> roles = new ArrayList<>();
         roles.add("USER");
 
         String token = Jwt.issuer("http://example.com/issuer")
                 .upn(email)
                 .expiresIn(Duration.ofHours(1))
-                .claim("coreUrl", "localhost:8082")
+                .claim("coreUrl", coreUrl)
                 .claim("roles", roles)
                 .sign();
 
         return token;
     }
 
-    public static boolean authenticate(String email, String password) {
+    public boolean authenticate(String email, String password) {
         return true;
     }
 }

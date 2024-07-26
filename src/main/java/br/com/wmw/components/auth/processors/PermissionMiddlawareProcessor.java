@@ -1,4 +1,4 @@
-package br.com.wmw.auth.processors;
+package br.com.wmw.components.auth.processors;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,11 +14,11 @@ import io.smallrye.jwt.auth.principal.DefaultJWTParser;
 import io.smallrye.jwt.auth.principal.JWTParser;
 import jakarta.json.JsonString;
 
-public class JwtMiddlawareProcessor implements Processor {
+public class PermissionMiddlawareProcessor implements Processor {
 
     private final List<String> permissions;
 
-    public JwtMiddlawareProcessor(List<String> permissions) {
+    public PermissionMiddlawareProcessor(List<String> permissions) {
         this.permissions = permissions;
     }
 

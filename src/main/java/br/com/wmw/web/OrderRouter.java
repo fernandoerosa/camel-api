@@ -1,12 +1,12 @@
-package br.com.wmw;
+package br.com.wmw.web;
 
 import java.util.Arrays;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.dataformat.JsonLibrary;
 
-import br.com.wmw.auth.processors.JwtMiddlawareProcessor;
-import br.com.wmw.transforms.OrderProcessor;;
+import br.com.wmw.components.auth.processors.PermissionMiddlawareProcessor;
+import br.com.wmw.components.transform.processors.OrderProcessor;
 
 public class OrderRouter extends RouteBuilder {  
 
@@ -14,7 +14,7 @@ public class OrderRouter extends RouteBuilder {
     public void configure() throws Exception {
 
           from("rest:post:/order/create")
-            .process(new JwtMiddlawareProcessor(Arrays.asList("CREATE_ORDER")))
+            .process(new PermissionMiddlawareProcessor(Arrays.asList("CREATE_ORDER")))
             .choice()
             .when(simple("${header.legacy} == 'true'"))
                 .to("direct:legacy-orders")

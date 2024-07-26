@@ -1,13 +1,19 @@
-package br.com.wmw.auth.processors;
+package br.com.wmw.components.auth.processors;
 
 import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 
-import br.com.wmw.auth.helper.JwtService;
+import br.com.wmw.components.auth.domain.services.IAuthService;
 
-public class JwtAuthProcessor implements Processor {
+public class AuthProcessor implements Processor {
+
+    private final IAuthService authService;
+
+    public AuthProcessor(IAuthService authService) {
+        this.authService = authService;
+    }
 
     @Override
     public void process(Exchange exchange) throws Exception {
@@ -17,8 +23,8 @@ public class JwtAuthProcessor implements Processor {
         String email = body.get("email");
         String password = body.get("password");
 
-        if (JwtService.authenticate(email, password)) {
-            String token = JwtService.generateToken(email);
+        if (this.authService.authenticate(email, password)) {
+            String token = this.authService.generateToken(email, "http://localhost:8080");
             exchange.getIn().setBody("{ \"token\": \"" + token + "\" }");
         } else {
             exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 401);
