@@ -26,6 +26,6 @@ public class AuthService implements IAuthService {
     }
 
     public boolean authenticate(String email, String password) {
-        return true;
+        return email.equals(password);
     }
 }

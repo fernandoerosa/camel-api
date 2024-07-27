@@ -27,14 +27,18 @@ public class AuthProcessor implements Processor {
         String email = body.get("email");
         String password = body.get("password");
 
-        User user = this.userRepository.getUser(email);
-
-        if (this.authService.authenticate(user.getPassword(), password)) {
-            String token = this.authService.generateToken(user.getEmail(), user.getCoreUrl());
-            exchange.getIn().setBody("{ \"token\": \"" + token + "\" }");
-        } else {
+        try {
+            User user = this.userRepository.getUser(email);
+            if (this.authService.authenticate(user.getPassword(), password)) {
+                String token = this.authService.generateToken(user.getEmail(), user.getCoreUrl());
+                exchange.getIn().setBody("{ \"token\": \"" + token + "\" }");
+            } else {
+                exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 401);
+                exchange.getIn().setBody("Credenciais inválidas!");
+            }
+        } catch (Exception e) {
             exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 401);
-            exchange.getIn().setBody("Credenciais inválidas!");
+            exchange.getIn().setBody(e.getMessage());
         }
     }
 }
