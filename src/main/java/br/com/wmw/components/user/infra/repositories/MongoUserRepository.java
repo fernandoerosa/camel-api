@@ -1,5 +1,7 @@
 package br.com.wmw.components.user.infra.repositories;
 
+import org.bson.types.ObjectId;
+
 import br.com.wmw.components.user.domain.entity.User;
 import br.com.wmw.components.user.domain.repositories.IUserRepository;
 import br.com.wmw.components.user.infra.entity.MongoUser;
@@ -16,6 +18,7 @@ public class MongoUserRepository implements IUserRepository, PanacheMongoReposit
         if (mongoUser == null) {
             throw new RuntimeException("User not found");
         }
+        
         return new User(mongoUser.getId().toString(), mongoUser.getEmail(), mongoUser.getPassword(), mongoUser.getCustomerId(), mongoUser.getCoreUrl());
     }
 
@@ -32,5 +35,16 @@ public class MongoUserRepository implements IUserRepository, PanacheMongoReposit
         MongoUser createdUser = find("email", user.getEmail()).firstResult();
 
         return new User(createdUser.getId().toString(), createdUser.getEmail(), createdUser.getPassword(), createdUser.getCustomerId(), createdUser.getCoreUrl());
+    }
+
+    @Override
+    public User getUserById(String userId) {
+        MongoUser mongoUser = this.findById(new ObjectId(userId));
+
+        if (mongoUser == null) {
+            throw new RuntimeException("User not found");
+        }
+
+        return new User(mongoUser.getId().toString(), mongoUser.getEmail(), mongoUser.getPassword(), mongoUser.getCustomerId(), mongoUser.getCoreUrl());
     }
 }

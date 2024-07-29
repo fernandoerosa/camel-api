@@ -30,7 +30,7 @@ public class AuthProcessor implements Processor {
         try {
             User user = this.userRepository.getUserByEmail(email);
             if (this.authService.authenticate(user.getPassword(), password)) {
-                String token = this.authService.generateToken(user.getEmail(), user.getCoreUrl());
+                String token = this.authService.generateToken(user.getEmail(), user.getCoreUrl(), user.getId());
                 exchange.getIn().setBody("{ \"token\": \"" + token + "\" }");
             } else {
                 exchange.getIn().setHeader(Exchange.HTTP_RESPONSE_CODE, 401);

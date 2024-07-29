@@ -1,6 +1,6 @@
 package br.com.wmw.components.auth.domain.services;
 
 public interface IAuthService {
-    public String generateToken(String email, String coreUrl);
+    public String generateToken(String email, String coreUrl, String userId);
     public boolean authenticate(String targetPassword, String password);
 }

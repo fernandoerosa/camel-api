@@ -11,7 +11,7 @@ import jakarta.inject.Singleton;
 @Singleton
 public class AuthService implements IAuthService {
 
-    public String generateToken(String email, String coreUrl) {
+    public String generateToken(String email, String coreUrl, String userId) {
         List<String> roles = new ArrayList<>();
         roles.add("USER");
 
@@ -20,6 +20,7 @@ public class AuthService implements IAuthService {
                 .expiresIn(Duration.ofHours(1))
                 .claim("coreUrl", coreUrl)
                 .claim("roles", roles)
+                .claim("userId", userId)
                 .sign();
 
         return token;

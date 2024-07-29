@@ -10,6 +10,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
+import br.com.wmw.components.user.domain.repositories.IUserRepository;
+import io.quarkus.logging.Log;
 import io.smallrye.jwt.auth.principal.DefaultJWTParser;
 import io.smallrye.jwt.auth.principal.JWTParser;
 import jakarta.json.JsonString;
@@ -17,13 +19,15 @@ import jakarta.json.JsonString;
 public class PermissionMiddlawareProcessor implements Processor {
 
     private final List<String> permissions;
+    private final IUserRepository userRepository;
 
-    public static PermissionMiddlawareProcessor withoutPermissions() {
-        return new PermissionMiddlawareProcessor(Collections.emptyList());
+    public static PermissionMiddlawareProcessor withoutPermissions(IUserRepository userRepository) {
+        return new PermissionMiddlawareProcessor(Collections.emptyList(), userRepository);
     }
 
-    public PermissionMiddlawareProcessor(List<String> permissions) {
+    public PermissionMiddlawareProcessor(List<String> permissions, IUserRepository userRepository) {
         this.permissions = permissions;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -36,6 +40,12 @@ public class PermissionMiddlawareProcessor implements Processor {
         JWTParser jwtParser = new DefaultJWTParser();
 
         JsonWebToken jsonWebToken = jwtParser.parseOnly(authHeader);
+        
+        jsonWebToken.getClaimNames().forEach(claim -> {
+           Log.info(claim + " = " + jsonWebToken.getClaim(claim));
+        });
+
+        Log.info("User = " + this.userRepository.getUserById(jsonWebToken.getClaim("userId")));
 
         //Capturar roles por usuario
         List<String> roles = extractRoles(jsonWebToken.getClaim("roles"));
