@@ -50,7 +50,7 @@ public class PermissionMiddlawareProcessor implements Processor {
         //Capturar roles por usuario
         List<String> roles = extractRoles(jsonWebToken.getClaim("roles"));
 
-        if (! this.permissions.isEmpty() || hasPermissions(roles)) {
+        if (this.permissions.isEmpty() || hasPermissions(roles)) {
             exchange.getIn().setHeader("coreUrl", jsonWebToken.getClaim("coreUrl"));
         } else {
             throw new Exception("Sem Permissão");
