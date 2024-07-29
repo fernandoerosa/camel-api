@@ -10,7 +10,7 @@ import jakarta.inject.Singleton;
 public class MongoUserRepository implements IUserRepository, PanacheMongoRepository<MongoUser> {
 
     @Override
-    public User getUser(String email) {
+    public User getUserByEmail(String email) {
         MongoUser mongoUser = find("email", email).firstResult();
 
         if (mongoUser == null) {

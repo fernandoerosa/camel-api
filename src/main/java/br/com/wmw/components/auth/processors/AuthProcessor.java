@@ -28,7 +28,7 @@ public class AuthProcessor implements Processor {
         String password = body.get("password");
 
         try {
-            User user = this.userRepository.getUser(email);
+            User user = this.userRepository.getUserByEmail(email);
             if (this.authService.authenticate(user.getPassword(), password)) {
                 String token = this.authService.generateToken(user.getEmail(), user.getCoreUrl());
                 exchange.getIn().setBody("{ \"token\": \"" + token + "\" }");
