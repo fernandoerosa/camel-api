@@ -18,6 +18,10 @@ public class PermissionMiddlawareProcessor implements Processor {
 
     private final List<String> permissions;
 
+    public static PermissionMiddlawareProcessor withoutPermissions() {
+        return new PermissionMiddlawareProcessor(Collections.emptyList());
+    }
+
     public PermissionMiddlawareProcessor(List<String> permissions) {
         this.permissions = permissions;
     }
@@ -36,11 +40,11 @@ public class PermissionMiddlawareProcessor implements Processor {
         //Capturar roles por usuario
         List<String> roles = extractRoles(jsonWebToken.getClaim("roles"));
 
-        if (!hasPermissions(roles)) {
+        if (! this.permissions.isEmpty() || hasPermissions(roles)) {
+            exchange.getIn().setHeader("coreUrl", jsonWebToken.getClaim("coreUrl"));
+        } else {
             throw new Exception("Sem Permissão");
         }
-
-        exchange.getIn().setHeader("coreUrl", jsonWebToken.getClaim("coreUrl"));
     }
 
     private List<String> extractRoles(Object rolesClaim) {

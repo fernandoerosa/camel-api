@@ -24,9 +24,15 @@ public class ProductRouter extends RouteBuilder {
     @Override
     public void configure() throws Exception {
         from("rest:post:/product")
-            .process(new CoreResolver(this.coreRepository))
-            .log("Headers: ${header.coreUrl}")
-            .to("direct:product");
+            .choice()
+            .when(simple("${header.Authorization} == null"))
+                .process(new CoreResolver(this.coreRepository))
+                .log("Core resolver Headers: ${header.coreUrl}")
+                .to("direct:product")
+            .otherwise()
+                .process(PermissionMiddlawareProcessor.withoutPermissions())
+                .log("Middleware Headers: ${header.coreUrl}")
+                .to("direct:product");
 
         from("rest:post:/secure-product")
             .process(new PermissionMiddlawareProcessor(Arrays.asList("READ_PRODUCT")))
