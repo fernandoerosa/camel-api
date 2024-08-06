@@ -20,7 +20,7 @@ public class AuthProcessor implements Processor {
     }
 
     @Override
-    public void process(Exchange exchange) throws Exception {
+    public void process(Exchange exchange) throws Exception {   
 
         Map<String, String> body = exchange.getIn().getBody(Map.class);
 
